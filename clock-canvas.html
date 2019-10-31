@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>Company</title>
+</head>
+<body id = 'kappa'>
+<canvas id="clock" width="500" height="500">hi</canvas>
+<script>
+    // создание часов
+    function clock() {
+        //нахожу канвас
+        const canvas = document.getElementById('clock');
+        //getContext - возвращает контекст рисования на холсте; 2d представляет двумерный контекст
+        if (canvas && canvas.getContext('2d')) {
+            let ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#fcca66';
+            //рисуем круг
+            ctx.beginPath();
+            ctx.arc(250, 250, 250, 0, 2 * Math.PI);
+            ctx.fill();
+            //маленький кружок в центре
+            ctx.fillStyle = '#a17e38';
+            ctx.beginPath();
+            ctx.arc(250, 250, 25, 0, 2 * Math.PI);
+            ctx.fill();
+            //зеленые кружочки
+            for(let i = 0; i<12; i++) {
+                ctx.fillStyle = '#48b382';
+
+                let angle = i*Math.PI/6;
+                let x = 250 + 210 * Math.sin(angle);
+                let y = 250 - 210 * Math.cos(angle);
+
+                ctx.beginPath();
+                ctx.arc(x, y, 35, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+            //числа внутри
+            for(let i = 12; i>=1; i--) {
+                ctx.font = '30px Georgia';
+                ctx.fillStyle = 'black';
+                let theString = i;
+
+                let angle = i*Math.PI/6;
+                let x = 240 + 210 * Math.sin(angle);
+                let y = 255 - 210 * Math.cos(angle);
+
+                ctx.fillText(+theString, x, y);
+            }
+        }
+    }
+
+    clock();
+//работа часов
+    function work() {
+        const canvas = document.getElementById('clock');
+        if (canvas && canvas.getContext('2d')) {
+            let ctx = canvas.getContext('2d');
+
+            function start(){
+                //для очистки запускаем функцию создания часов
+                clock();
+
+                let time = new Date();
+                let hourT = time.getHours();
+                let minT = time.getMinutes();
+                let secT = time.getSeconds();
+
+                let angleH = (30*(hourT + (1/60)*minT)*Math.PI/180);
+                let angleM = (6*(minT + (1/60)*secT)*Math.PI/180);
+                let angleS = (6*secT*Math.PI/180);
+
+                function arrowH() {
+                    //указываем точку вращения
+                    ctx.translate(250, 250);
+                    //задаем угол
+                    ctx.rotate(angleH);
+                    ctx.fillStyle = 'black';
+                    ctx.fillRect(-20, -156, 20, 156);
+                }
+                arrowH();
+
+                function arrowM() {
+                    ctx.resetTransform();
+                    ctx.translate(250, 250);
+                    ctx.rotate(angleM);
+                    ctx.fillStyle = 'black';
+                    ctx.fillRect(-10, -210, 10, 210);
+                }
+                arrowM();
+
+                function arrowS() {
+                    ctx.resetTransform();
+                    ctx.translate(250, 250);
+                    ctx.fillStyle = 'white';
+                    ctx.rotate(angleS);
+                    ctx.fillRect(-4, -210, 4, 210);
+                }
+                arrowS();
+
+                ctx.resetTransform();
+                ctx.font = '30px Georgia';
+                ctx.fillStyle = 'grey';
+                let theString = time.toLocaleTimeString();
+                ctx.fillText(theString, 200, 105);
+
+                setTimeout(function(){
+                    start(); // рекурсия
+                }, 100);
+            }
+            start();
+        }
+    }
+    work();
+</script>
+</body>
+</html>

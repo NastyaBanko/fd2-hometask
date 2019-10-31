@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>Company</title>
+</head>
+<body id = 'kappa'>
+<script>
+    //функция создания часов
+    function clock() {
+        let framework = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        let body = document.getElementById('kappa');
+        let clock = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        let centre = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        let bred = clock.style.width = '500px';
+        let radius = parseFloat(bred)/2-40;//верно
+
+        framework.setAttribute('id','svg');
+        framework.style.cssText = 'width:500px;height:500px;';
+        framework.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+        clock.style.cssText = 'cx:250px;cy:250px;r:250px;fill:#fcca66;stroke:#fcca66';
+        centre.setAttribute('cx', '250');
+        centre.setAttribute('cy', '250');
+        centre.setAttribute('r', '15');
+        centre.setAttribute('fill', '#a17e38');
+
+        body.appendChild(framework);
+        framework.appendChild(clock);
+        framework.appendChild(centre);
+
+        //позиционирование шариков
+        function position() {
+            for(let i = 0; i<12; i++) {
+                let numberOfClock = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                numberOfClock.setAttribute('r', '35');
+                numberOfClock.style.cssText = 'fill:#48b382;';
+
+                let angle = i*Math.PI/6;//угол верный
+
+                //координаты центрального шарика
+                let centreCenterX = parseInt(centre.getAttribute('cx'));//250//верно
+                let centreCenterY = parseInt(centre.getAttribute('cy'));//250//верно
+
+                let numberCenterX = centreCenterX + radius * Math.sin(angle);
+                let numberCenterY = centreCenterY - radius * Math.cos(angle);
+
+                let left = Math.round(numberCenterX-numberOfClock.getAttribute('r')+35);
+                let left2 = parseInt(left);
+                let top = Math.round(numberCenterY-numberOfClock.getAttribute('r')+35);
+                let top2 = parseInt(top);
+
+                numberOfClock.setAttribute('cx', left2);
+                numberOfClock.setAttribute('cy', top2);
+
+                framework.appendChild(numberOfClock);
+                framework.appendChild(centre);
+            }
+        }
+        position();
+
+        //позиционирование чисел
+        function number() {
+            for(let i = 12; i>=1; i--) {
+                let text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.style.fontSize = '32px';
+                text.innerHTML = i;
+                let angle = i*Math.PI/6;
+
+                let centreCenterX = parseInt(centre.getAttribute('cx'));
+                let centreCenterY = parseInt(centre.getAttribute('cy'));
+
+                let textCenterX = centreCenterX + radius * Math.sin(angle);
+                let textCenterY = centreCenterY - radius * Math.cos(angle);
+
+                let left = Math.round(textCenterX-10);
+                let left2 = parseInt(left);
+                let top = Math.round(textCenterY+10);
+                let top2 = parseInt(top);
+
+               text.setAttribute('x', left2);
+                text.setAttribute('y', top2);
+
+                framework.appendChild(text);
+            }
+        }
+        number();
+
+    }
+    clock();
+    //функция работы часов
+    function work(){
+        let hour = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        let min = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        let sec = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        let framework = document.getElementById('svg');
+        let timeView = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+
+        function start(){
+            //запускаем время
+            let time = new Date();
+            let hourT = time.getHours();
+            let minT = time.getMinutes();
+            let secT = time.getSeconds();
+            //находим углы смещения
+            let angleH = 30*(hourT + (1/60)*minT);
+            let angleM = 6*(minT + (1/60)*secT);
+            let angleS =6*secT;
+
+            hour.setAttribute('x','240');
+            hour.setAttribute('y','95');
+            hour.setAttribute('rx','10');
+            hour.setAttribute('ry','10');
+            hour.setAttribute('fill','black');
+            min.setAttribute('x','245');
+            min.setAttribute('y','40');
+            min.setAttribute('rx','10');
+            min.setAttribute('ry','10');
+            min.setAttribute('fill','black');
+            sec.setAttribute('x','249');
+            sec.setAttribute('y','40');
+            sec.setAttribute('rx','10');
+            sec.setAttribute('ry','10');
+            sec.setAttribute('fill','white');
+
+            hour.setAttribute('transform','rotate('+angleH+' 250 250)');
+            min.setAttribute('transform','rotate('+angleM+' 250 250)');
+            sec.setAttribute('transform','rotate('+angleS+' 250 250)');
+
+            timeView.setAttribute('x','210');
+            timeView.setAttribute('y','105');
+            timeView.innerHTML = time.toLocaleTimeString();
+            timeView.setAttribute('fill','grey');
+
+            hour.style.cssText = 'width:20px; height:155px;';
+            min.style.cssText = 'width:10px; height:210px;';
+            sec.style.cssText = 'width:3px; height:210px;';
+            timeView.style.fontSize = '25px';
+
+            framework.appendChild(hour);
+            framework.appendChild(min);
+            framework.appendChild(sec);
+            framework.appendChild(timeView);
+
+            setTimeout(function(){
+                start(); // рекурсия
+            }, 100);
+        }
+        start();
+    }
+    work();
+</script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+body {
+    color: rgb(146, 152, 156);
+}
+
+#mainBlock {
+    width: 340px;
+    height: auto;
+    background: #fdfdfd;
+    position: relative;
+    border-radius: 12px;
+    margin-left: 50px;
+    padding: 10px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    border: solid 1px #d9dee0;
+}
+
+#threeDays {
+    margin-bottom: 10px;
+}
+
+.forDays {
+    width: 50%;
+    box-sizing: border-box;
+    border: solid 1px rgb(213, 226, 230);
+    background-color: white;
+    color: rgb(146, 152, 156);
+    padding: 5px;
+    font-size: 15px;
+    cursor: pointer;
+    outline: none;
+}
+
+#words {
+    font-size: 23px;
+    text-align: center;
+}
+
+#inf {
+    margin: 0 auto;
+}
+
+#nameWeather {
+    text-align: center;
+}
+
+#location {
+    font-size: 40px;
+    display: flex;
+    align-items: center;
+    margin: -15px auto 0 auto
+}
+
+#words1 {
+    font-size: 23px;
+    text-align: center;
+}
+
+#location1 {
+    font-size: 40px;
+    display: flex;
+    align-items: center;
+    margin: -15px auto 0 auto;
+}
+
+#nameWeather1 {
+    text-align: center;
+}
+
+#words2 {
+    font-size: 23px;
+    text-align: center;
+}
+
+#location2 {
+    font-size: 40px;
+    display: flex;
+    align-items: center;
+    margin: -15px auto 0 auto;
+}
+
+#nameWeather2 {
+    text-align: center;
+}
+
+#words3 {
+    font-size: 23px;
+    text-align: center;
+}
+
+#location3 {
+    font-size: 40px;
+    display: flex;
+    align-items: center;
+    margin: -15px auto 0 auto;
+}
+
+#nameWeather3 {
+    text-align: center;
+}
+
+#close {
+    height: 30px;
+    padding: 5px;
+    color: #92989c;
+    border: 1px solid rgb(213, 226, 230);
+    background-color: rgb(255, 255, 255);
+    margin: 15px auto 5px auto;
+    text-align: center;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: transform 0.5s;
+    display: block;
+    font-size: 15px;
+    outline: none;
+}
+
+#close:hover {
+    transform: scale(1.09);
+}
+
+.colorClick {
+    background-color: #edf1f3 !important;
+}
+
+.smallerLocation {
+    font-size: 30px;
+}
+
+.forImage {
+    margin-bottom: -15px;
+    margin-left: -10px;
+    width: 80px;
+}
+
+.forNameWeather {
+    font-size: 13px;
+}
+
+.infBorder {
+    border: solid 1px #d9dde0;
+    padding: 5px;
+    border-radius: 15px;
+    box-sizing: border-box;
+}
+
+.view {
+    display: block;
+}
+

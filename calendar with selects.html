@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>Company</title>
+    <style>
+        td.active{
+            background-color: #ee3333!important;
+        }
+        td.hover{
+            background-color: #ffd3c0!important;
+        }
+    </style>
+
+</head>
+<body id = 'kappa'>
+<div id ='calendaric'></div>
+<script>
+
+    //getDate - номер дня
+    //getDay - день недели
+
+
+    function calendar(month, year) {
+        const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
+            "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
+        ];
+
+        let calendaricForYou = new Date(year, month);
+        let elem = document.getElementById('calendaric');
+        let table2 = document.createElement('table');//создаем table
+        table2.style.cssText = 'border-collapse:collapse;margin:0 auto;';
+
+        let tr = document.createElement('tr');
+        for(let i = 0; i<5; i++) {
+            let td = document.createElement('td');
+            td.className = 'redB';
+            tr.appendChild(td);
+        }
+        let button1 = document.createElement('button');//первая кнопка
+        button1.textContent = '<<';
+        button1.style.cssText = 'background-color:white; border-radius:10px;cursor:pointer;' +
+            'border-style:solid;outline:none;';
+        tr.firstChild.appendChild(button1);
+        let button2 = document.createElement('button');//вторая кнопка
+        button2.textContent = '<';
+        button2.style.cssText = 'background-color:white; border-radius:10px;cursor:pointer;' +
+            'border-style:solid;outline:none;';
+        tr.firstChild.nextSibling.appendChild(button2);
+        let middleTR = tr.firstChild.nextSibling.nextSibling;
+        middleTR.setAttribute('colspan','3');//серединка
+        middleTR.style.cssText = 'color:white;text-transform:uppercase';
+        middleTR.innerHTML = monthNames[month]+' '+year;
+        let button3 = document.createElement('button');//третья
+        button3.textContent = '>';
+        button3.style.cssText = 'background-color:white; border-radius:10px;cursor:pointer;' +
+            'border-style:solid;outline:none;';
+        tr.lastChild.previousSibling.appendChild(button3);
+        let button4 = document.createElement('button');//четвертая
+        button4.style.cssText = 'background-color:white; border-radius:10px;cursor:pointer;' +
+            'border-style:solid;outline:none;';
+        button4.textContent = '>>';
+        tr.lastChild.appendChild(button4);
+        table2.appendChild(tr);
+        elem.appendChild(table2);
+
+        //заполнение ячейками в зависимости от того, с какого дня недели начинается месяц
+        for (let i = 0; i < getDay(calendaricForYou); i++) {
+            let td = document.createElement('td');
+            td.className = 'simple';
+            table2.appendChild(td);
+        }
+
+        //заполнение ячеек цифрами
+        //пока найденный месяц соответствует выбранному
+        while (calendaricForYou.getMonth() === month) {
+            let td = document.createElement('td');
+            td.className = 'simple';
+            let day = calendaricForYou.getDate();
+            table2.appendChild(td);
+            td.innerHTML = day;
+            //если доходим до воскресения, то нужен перевод строки
+            if (calendaricForYou.getDay() % 7 === 0) {
+                let tr = document.createElement('tr');
+                table2.appendChild(tr);
+            }
+            calendaricForYou.setDate(calendaricForYou.getDate() + 1);
+        }
+
+        //добавляем ячейки, если заканчивется не в воскресенье
+        if ((getDay(calendaricForYou) !== 0)&&(getDay(calendaricForYou) !== 6)){
+            for (let i = calendaricForYou.getDay(); i <= 7; i++) {
+                let td = document.createElement('td');
+                td.className = 'simple';
+                table2.appendChild(td);
+            }
+        }
+        else if(getDay(calendaricForYou) === 6){
+            let td = document.createElement('td');
+            td.className = 'simple';
+            table2.appendChild(td);
+        }
+
+        elem.appendChild(table2);//добавляем код в body
+
+        //добавляем свойства
+        let redTD = document.getElementsByClassName('redB');
+        for(let i = 0; i<redTD.length; i++){
+            let redTD_ = redTD[i];
+            redTD_.style.cssText = 'border-style:solid;border-color:#dddddd;border-width:2px;padding:3px;' +
+                'text-align:center;width:30px;height:30px; background-color:#e33;color:white;text-transform: uppercase;';
+        }
+
+        let otherTD = document.getElementsByClassName('simple');
+        console.log(otherTD);
+        for (let i = 0; i < otherTD.length; i++) {
+            let other_TD = otherTD[i];
+            other_TD.style.cssText = 'border-style:solid;border-color:#dddddd;border-width:2px;padding:3px;text-align:center;' +
+                'background-color:#eee;width:30px;height:30px;cursor:pointer';
+            let s = other_TD.innerHTML;//белые ячейки
+            if(s === ''){
+                other_TD.style.backgroundColor = 'white';
+            }
+        }
+
+        let holidayTD = document.querySelectorAll("td:nth-child(8n)");
+        for (let i = 0; i < holidayTD.length; i++) {
+            let holiday_TD = holidayTD[i];
+            holiday_TD.style.backgroundColor = 'grey';
+            //белые ячейки
+            let s = holiday_TD.innerHTML;
+            if(s === ''){
+                holiday_TD.style.backgroundColor = 'white';
+            }
+        }
+        let sunday = document.querySelectorAll("td:nth-child(8n+7)");
+        for (let i = 0; i < sunday.length; i++) {
+            let sunday_ = sunday[i];
+            sunday_.style.backgroundColor = 'grey';
+            let s = sunday_.innerHTML;
+            if(s === ''){
+                sunday_.style.backgroundColor = 'white';
+            }
+        }
+
+        //месяц назад
+        button2.addEventListener('click', function () {
+            //если месяц - январь, то на один год назад
+            if(month === 0 ){
+                year = year - 1;
+                month = 11;
+            }
+            //продолжаем отнимать
+            else{
+                month -= 1;
+            }
+            calendar(month,year);
+        });
+        //месяц вперед
+        button3.addEventListener('click', function(){
+            if(month === 11){
+                year = year+1;
+                month = 0;
+            }
+            else{
+                month += 1;
+            }
+            calendar(month,year);
+        });
+        //год назад
+        button1.addEventListener('click', function () {
+            year -= 1;
+            calendar(month, year);
+        });
+        //год вперед
+        button4.addEventListener('click', function () {
+            year += 1;
+            calendar(month, year);
+        });
+
+
+        //изменение цвета ячеек
+        //выбранная ячейка
+        function mouseC() {
+            let selectedTd;
+            table2.addEventListener('click', function (event) {
+                //свойство таргет содержит ссылку на элемент, у которого произошло событие
+                let target = event.target;
+                //проверяем, чтобы клик был сделан конкретно на td
+                if (target.tagName !== 'TD') return;
+                //вызываем функцию изменения цвета
+                active(target);
+            });
+
+            function active(node) {
+                if (selectedTd) {
+                    selectedTd.classList.remove('active');
+                }
+                selectedTd = node;
+                selectedTd.classList.add('active');
+            }
+        }
+        mouseC();
+        //изменение цвета при наведении
+        function mouseO() {
+            let another;
+            table2.addEventListener('mouseover', function (event) {
+                let target = event.target;
+                if (target.tagName !== 'TD') return;
+                if(target.className !== 'redB') {
+                    hover(target);
+                }
+            });
+            function hover(node) {
+                if (another) {
+                    another.classList.remove('hover');
+                }
+                another = node;
+                another.classList.add('hover');
+            }
+            //чтобы при выходе с таблицы цвет обнулялся
+            table2.addEventListener('mouseout', function(){
+                if (another) {
+                    another.classList.remove('hover');
+                }
+            });
+        }
+        mouseO();
+
+    }
+
+    //получить номера дней недели
+    function getDay(date) {
+        let day = date.getDay();
+        if (day === 0) day = 7;
+        return day - 1;
+    }
+
+    //функция создания селекта
+    function init(){
+        let header = document.createElement('div');
+        let select1 = document.createElement('select');
+        let select2 = document.createElement('select');
+        let label1 = document.createElement('label');
+        let label2 = document.createElement('label');
+        let body = document.getElementById('kappa');
+        let elem = document.getElementById('calendaric');
+        let butCreate = document.createElement('button');
+        let butDelete = document.createElement('button');
+
+        let monthArray = ['Выбрать месяц',"Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
+            "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+
+        let yearArray = ['Выбрать год','1980','1981','1982','1983','1984','1985','1986','1987','1988','1989','1990','1991','1992',
+            '1993','1994','1995','1996','1997','1998','1999','2000','2001','2002','2003','2004','2005','2006','2007','2008','2009',
+            '2010','2011','2012','2013','2014','2015','2016','2017','2018','2019'];
+
+        label1.textContent = 'Месяц: ';
+        label2.textContent = ' Год: ';
+        butCreate.textContent = 'Создать';
+        butDelete.textContent = 'Удалить';
+        butCreate.style.marginLeft = '7px';
+        butDelete.style.marginLeft = '7px';
+        header.style.cssText = 'padding: 15px; width: 500px; margin: 0 auto;';
+
+        function fill() {
+            //цикл для заполнения тега select массивом
+            for (let i = 0; i < monthArray.length; i++) {
+                let monthArray_ = monthArray[i];
+                let optionFill = document.createElement('option');
+                optionFill.className = 'month';
+                optionFill.textContent = monthArray_;
+                optionFill.value = monthArray_;
+                select1.appendChild(optionFill);
+            }
+            //цикл для заполнения тега select массивом
+            for (let i = 0; i < yearArray.length; i++) {
+                let yearArray_ = yearArray[i];
+                let optionFill = document.createElement('option');
+                optionFill.className = 'year';
+                optionFill.textContent = yearArray_;
+                optionFill.value = yearArray_;
+                select2.appendChild(optionFill);
+            }
+        }
+        fill();
+
+        butDelete.addEventListener('click', function(){
+            let elemForDelete = elem.firstElementChild;
+            let deleteL =  elem.childNodes.length;
+            elemForDelete.remove();
+            if (deleteL === 1){
+                butDelete.setAttribute('disabled', 'disabled');
+            }
+        });
+
+        function add() {
+            //этим условием мы делаем кнопку не активной
+            if ((select1.value = select1.firstChild.value) || (select2.value = select2.firstChild.value)) {
+                butCreate.setAttribute('disabled', 'disabled');
+            }
+            //а этой функцией возвращаем кнопку в нормальное состояние в том случае, если значение поменялось на допустимое
+            function disabled() {
+                if (select1.value !== select1.firstChild.value &&
+                    select2.value !== select2.firstChild.value) {
+                    butCreate.removeAttribute('disabled');
+                } else {
+                    butCreate.setAttribute('disabled', 'disabled');
+                }
+            }
+            //создаем обработчик событий, событие change - происходит при изменении выбранного значения в select
+            //если значение меняется, то вызывается функция disabled
+            select1.onchange = disabled;
+            select2.onchange = disabled;
+            //работа кнопки
+            butCreate.addEventListener('click', function () {
+                butDelete.removeAttribute('disabled');
+                let mon = parseInt(monthArray.indexOf(select1.value) - 1);
+                let year = parseInt(select2.value);
+                calendar(mon, year);
+            });
+        }
+        add();
+
+        body.insertBefore(header,elem);
+        header.appendChild(label1);
+        header.appendChild(select1);
+        header.appendChild(label2);
+        header.appendChild(select2);
+        header.appendChild(butCreate);
+        header.appendChild(butDelete);
+    }
+    init();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+    </style>
+</head>
+<body id="kappa">
+<div id='ICont' style='position: relative'>
+    <canvas id='CVSA' style='border: solid blue 1px; position: absolute'>
+    </canvas>
+    <canvas id='CVSB' style='border: solid blue 1px; position: absolute'>
+    </canvas>
+    <canvas id='grey' style='border: solid blue 1px; position: absolute'>
+    </canvas>
+</div>
+<canvas id='CVSBC' style='border: solid blue 1px'>
+</canvas>
+<script>
+    let body = document.getElementById('kappa');
+    let div = document.getElementById('ICont');
+    let start = document.createElement('button');
+    let greenCount = document.createElement('div');
+    let horizon = document.createElement('div');
+    let blueCount = document.createElement('div');
+
+    start.textContent = 'start!';
+    start.style.cssText = 'border:solid 2px #ccc6c6; margin-bottom:5px; color:#494949; font-size:20px; cursor:pointer; float: left;margin-right: 170px;';
+    greenCount.style.cssText = 'width:30px;height:30px; margin-bottom:5px; color:#494949; font-size:30px;float: left;text-align: center;' +
+        'border-bottom: solid 1px #c4c0c0;';
+    blueCount.style.cssText = 'width:30px;height:30px; margin-bottom:5px; color:#494949; font-size:30px;margin-left: 270px;text-align: center;' +
+        'border-bottom: solid 1px #c4c0c0;';
+    horizon.style.cssText = 'color:#494949; height:30px; float:left; font-size:30px;';
+    horizon.textContent = ':';
+
+    start.setAttribute('id', 'start');
+    greenCount.setAttribute('id', 'CountG');
+    blueCount.setAttribute('id', 'CountB');
+
+    body.insertBefore(start, div);
+    body.insertBefore(greenCount, div);
+    body.insertBefore(horizon, div);
+    body.insertBefore(blueCount, div);
+    // здесь будет только фон,
+    // никогда не перерисовываемый
+    let AreaCanvas = document.getElementById('CVSA');
+    let AreaContext = AreaCanvas.getContext('2d');
+    // здесь будет прыгать мяч
+    let BallCanvas = document.getElementById('CVSB');
+    let BallContext = BallCanvas.getContext('2d');
+    // здесь будет закэширован рисунок мяча
+    let BallCacheCanvas = document.getElementById('CVSBC');
+    BallCacheCanvas.style.display = 'none';
+    let BallCacheContext = BallCacheCanvas.getContext('2d');
+    //ракетки
+    let greyCanvas = document.getElementById('grey');
+    let greyContext = greyCanvas.getContext('2d');
+
+    let upPressed = false,
+        downPressed = false,
+        shiftPressed = false,
+        ctrlPressed = false;
+
+    function TRect(_x1, _y1, _x2, _y2) // прямоугольник
+    {
+        this.x1 = _x1;
+        this.y1 = _y1;
+        this.x2 = _x2;
+        this.y2 = _y2;
+
+        this.clone = function () // создаёт копию
+        {
+            return new TRect(this.x1, this.y1, this.x2, this.y2);
+        }
+    }
+
+    let BallH = // летящий мяч
+        {
+            PosX: 269, // текущая позиция
+            PosY: 150,
+            SpeedX: Math.random() * (1 + 1) - 1, // текущая скорость
+            SpeedY: Math.random() * (1 + 1) - 1,
+            Radius: 40, // радиус
+
+            CachePosX: 52,
+            CachePosY: 52,
+            CacheWidth: 104,
+            CacheHeight: 104,
+
+            PrepareCache: function () // рисует мяч
+            {
+                BallCacheContext.fillStyle = 'red';
+                BallCacheContext.lineWidth = 5;
+
+                BallCacheContext.beginPath();
+                BallCacheContext.arc(40, 40, 20, 0, 2 * Math.PI);
+                BallCacheContext.fill();
+            },
+
+            Update: function (ClearRect) {
+                if (ClearRect === undefined)
+                    ClearRect = AreaRect.clone();
+
+                // ширина и высота очищаемого прямоугольника
+                let ClearWidth = ClearRect.x2 - ClearRect.x1;
+                let ClearHeight = ClearRect.y2 - ClearRect.y1;
+
+                // надо сделать прозрачной очищаемую
+                // область; clearRect не подойдёт!
+                BallContext.globalCompositeOperation =
+                    'destination-out';
+                BallContext.fillStyle = "rgba(0,0,0,1)";
+                BallContext.fillRect(ClearRect.x1, ClearRect.y1,
+                    ClearWidth, ClearHeight);
+                BallContext.globalCompositeOperation =
+                    'source-over';
+
+                BallContext.drawImage(BallCacheCanvas,
+                    this.CachePosX - this.Radius - 1,
+                    this.CachePosY - this.Radius - 1,
+                    this.Radius * 2 + 2, this.Radius * 2 + 2,
+                    this.PosX - this.Radius - 1, this.PosY - this.Radius - 1,
+                    this.Radius * 2 + 2, this.Radius * 2 + 2);
+            },
+
+            // возвращает прямоугольник мяча
+            GetRect: function () {
+                // сразу чуть увеличиваем - на толщину линий
+                return new TRect(
+                    this.PosX - this.Radius - 1,
+                    this.PosY - this.Radius - 1,
+                    this.PosX + this.Radius + 1,
+                    this.PosY + this.Radius + 1);
+            }
+
+        };
+
+    let AreaH = // сцена
+        {
+            Width: 525,
+            Height: 295,
+
+            Prepare: function () {
+                AreaContext.drawImage(Img, 0, 0);
+            }
+
+        };
+
+    // устанавливаем размер холста
+    div.style.width = AreaH.Width + "px";
+    div.style.height = AreaH.Height + "px";
+    AreaCanvas.width = AreaH.Width;
+    AreaCanvas.height = AreaH.Height;
+    BallCanvas.width = AreaH.Width;
+    BallCanvas.height = AreaH.Height;
+    BallCacheCanvas.width = BallH.CacheWidth;
+    BallCacheCanvas.height = BallH.CacheHeight;
+    greyCanvas.width = AreaH.Width;
+    greyCanvas.height = AreaH.Height;
+
+    let AreaRect = new TRect(0, 0, AreaH.Width, AreaH.Height);
+
+    let Img = new Image;
+    Img.onload = function () {
+        AreaH.Prepare();
+        BallH.PrepareCache();
+        BallH.Update();
+    };
+    Img.src = 'black.jpeg';
+
+    function Start() {
+        PlanNextTick();
+        start.disabled = true;
+    }
+
+    start.addEventListener('click', Start);
+
+    let countG = 0;
+
+    function counterG() {
+        countG++;
+        greenCount.innerText = countG;
+    }
+
+    //функция подсчёов очков голубого
+    let countB = 0;
+
+    function counterB() {
+        countB++;
+        blueCount.innerText = countB;
+    }
+
+    function PlanNextTick() {
+        setTimeout(Tick, 0); // 0 - как можно раньше
+    }
+
+    let y1 = 0,
+        y2 = 0,
+        speed = 2;
+
+    greyContext.fillStyle = 'grey';
+    greyContext.fillRect(0, y1, 15, 79);
+    greyContext.fillRect(510, y2, 15, 79);
+
+
+    function keyDown(e) {
+        if (e.keyCode === 38) upPressed = true;
+        if (e.keyCode === 40) downPressed = true;
+        if (e.keyCode === 16) shiftPressed = true;
+        if (e.keyCode === 17) ctrlPressed = true;
+    }
+
+    function keyUp(e) {
+        if (e.keyCode === 38) upPressed = false;
+        if (e.keyCode === 40) downPressed = false;
+        if (e.keyCode === 16) shiftPressed = false;
+        if (e.keyCode === 17) ctrlPressed = false;
+    }
+
+    document.addEventListener('keydown', keyDown, false);
+    document.addEventListener('keyup', keyUp, false);
+
+    function Tick() {
+
+        let nextTick = true;
+
+        // прямоугольник до сдвига
+        let BallRect = BallH.GetRect();
+
+        //если достиг голубого блока
+        if (((BallH.PosX + BallH.Radius) > (AreaH.Width)) && ((BallH.PosY + 5 >= y2) && (BallH.PosY <= (y2 + 95)))) {
+            BallH.SpeedX = -BallH.SpeedX;
+            BallH.PosX = AreaH.Width - BallH.Radius;
+        }
+
+        //если достиг зелёного блока
+        if (((BallH.PosX - BallH.Radius) <= 15) && ((BallH.PosY + 5 >= y1) && (BallH.PosY <= (y1 + 89)))) {
+            BallH.SpeedX = -BallH.SpeedX;
+            BallH.PosX = 15 + BallH.Radius;
+        }
+
+        // наращиваем позицию мяча
+        BallH.PosX += BallH.SpeedX;
+        if ((BallH.PosX + BallH.Radius / 4 >= AreaH.Width)) {
+            BallH.SpeedX = -BallH.SpeedX;
+            counterG();
+            nextTick = false;
+        }
+        if (BallH.PosX - BallH.Radius / 1.2 <= 0) {
+            BallH.SpeedX = -BallH.SpeedX;
+            counterB();
+            nextTick = false;
+        }
+        BallH.PosY += BallH.SpeedY;
+        if (BallH.PosY - BallH.Radius / 1.2 <= 0) {
+            BallH.SpeedY = -BallH.SpeedY;
+        }
+        if (BallH.PosY + BallH.Radius / 4 >= AreaH.Height)
+            BallH.SpeedY = -BallH.SpeedY;
+
+        // обновляем мяч
+        BallH.Update(BallRect);
+
+        if (upPressed && y2 >= 0) {
+            greyContext.clearRect(500, 0, 25, 295);
+            y2 -= speed;
+            greyContext.fillRect(510, y2, 15, 79);
+        }
+        if (downPressed && y2 <= 295 - 79) {
+            greyContext.clearRect(500, 0, 25, 295);
+            y2 += speed;
+            greyContext.fillRect(510, y2, 15, 79);
+        }
+
+        if (shiftPressed && y1 >= 0) {
+            greyContext.clearRect(0, 0, 25, 295);
+            y1 -= speed;
+            greyContext.fillRect(0, y1, 15, 79);
+        }
+        if (ctrlPressed && y1 <= 295 - 79) {
+            greyContext.clearRect(0, 0, 25, 295);
+            y1 += speed;
+            greyContext.fillRect(0, y1, 15, 79);
+        }
+
+        if (nextTick) {
+            PlanNextTick();
+        } else {
+            start.disabled = false;
+        }
+    }
+</script>
+</body>
+</html>

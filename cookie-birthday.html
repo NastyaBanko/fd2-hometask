@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>Company</title>
+    <style>
+        button:hover {
+            transform: scale(1.09);
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
+</head>
+<body id='kappa'>
+<script>
+
+    let body = document.getElementById('kappa');
+    let div = document.createElement('div');
+    let words = document.createElement('div');
+    let time = document.createElement('div');
+    let button = document.createElement('button');
+
+    div.style.cssText = 'width: 340px; height: auto; background: #fdfdfd; position: relative; border-radius: 12px; margin-left: 50px;' +
+        'display:none; padding: 10px; box-sizing: border-box; height: auto; display: flex; flex-direction: column; box-shadow: 0 0 10px rgba(0,0,0,0.5); border: solid 1px #bfc7ca;';
+    div.setAttribute('id', 'mainBlock');
+    words.style.cssText = 'font-size: 23px; color: rgb(146, 152, 156); text-align: center;';
+    words.setAttribute('id', 'words');
+    time.style.cssText = 'font-size: 23px; color: rgb(146, 152, 156); text-align: center; margin: 10px 0 10px 0;';
+    button.style.cssText = 'width:60px;height:30px;padding:5px;color: #92989c;border: 1px solid rgb(213, 226, 230);     background-color: rgb(255, 255, 255); margin: 0 auto; text-align:center;  box-sizing: border-box;' +
+        'cursor:pointer; transition: transform 0.5s; display: block; font-size: 18px; outline: none;    margin-bottom: 5px;';
+    button.textContent = 'Exit';
+    div.classList.add("animated", 'delay-1s', 'fadeInLeft', 'slow');
+
+    body.appendChild(div);
+    div.appendChild(words);
+    div.appendChild(time);
+    div.appendChild(button);
+
+    button.addEventListener('click', function () {
+        div.style.display = 'none';
+    });
+
+    function getCookie(name1, name2, name3) {
+        let matches1 = document.cookie.match(new RegExp(
+            "(?:^|; )" + name1.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+        ));
+        let matches2 = document.cookie.match(new RegExp(
+            "(?:^|; )" + name2.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+        ));
+        let matches3 = document.cookie.match(new RegExp(
+            "(?:^|; )" + name3.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+        ));
+        if (matches1 && matches2 && matches3) {
+
+            function reloaded() {
+                div.style.display = 'block';
+                let name = decodeURIComponent(matches1[1]);
+                let day = decodeURIComponent(matches2[1]);
+                let month = decodeURIComponent(matches3[1]);
+                words.textContent = 'Привет, ' + name + '!\n' + '\nДо вашего дня\n рождения осталось:\n';
+
+                function timer() {
+                    let timeStart = new Date();
+                    let achiveDate = new Date(timeStart.getFullYear(), month - 1, +day, 0, 0, 1); //Задаем дату, к которой будет осуществляться обратный отсчет
+                    let result = (achiveDate - timeStart) + 1000;
+                    //Метод Math.floor() возвращает целое число, которое меньше или равно данному числу
+                    let seconds = Math.floor((result / 1000) % 60);
+                    let minutes = Math.floor((result / 1000 / 60) % 60);
+                    let hours = Math.floor((result / 1000 / 60 / 60) % 24);
+                    let days = Math.floor(result / 1000 / 60 / 60 / 24);
+                    if (seconds < 10) seconds = '0' + seconds;
+                    if (minutes < 10) minutes = '0' + minutes;
+                    if (hours < 10) hours = '0' + hours;
+                    time.innerHTML = days + ':' + hours + ':' + minutes + ':' + seconds;
+                    let doo = setTimeout(timer, 1000);
+                    if (result < 0) {
+                        time.innerText = 'Упс, ваш день рождения уже прошёл в этом году';
+                        time.style.textAlign = 'center';
+                        clearTimeout(doo);
+                    }
+                }
+
+                timer();
+            }
+
+
+            if (window.performance) {
+                console.log("window.performance works fine on this browser");
+            }
+            if (performance.navigation.type == 1) {
+                console.log("This page is reloaded");
+                reloaded();
+            } else {
+                console.log("This page is not reloaded");
+                let name;
+                let day;
+                let month;
+                do {
+                    name = prompt("Как тебя зовут?");
+                } while (name === null || name.length >= 15 || name === '');
+                do {
+                    day = parseInt(prompt("В какой день по счёту ты родился?"));
+                } while (day >= 32 || day === '' || isNaN(day));
+                do {
+                    month = parseInt(prompt("В какой месяц по счёту ты родился?"));
+                } while (month >= 13 || month === '' || isNaN(month));
+                document.cookie = 'Name = ' + name + ';';
+                document.cookie = 'Day = ' + day + ';';
+                document.cookie = 'Month = ' + month + ';';
+                console.log(document.cookie);
+                div.style.display = 'none';
+            }
+
+        } else {
+            div.style.display = 'none';
+        }
+    }
+
+    getCookie('Name', 'Day', 'Month');
+
+</script>
+</body>
+</html>
